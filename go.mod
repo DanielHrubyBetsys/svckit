@@ -3,7 +3,7 @@ module github.com/minus5/svckit
 go 1.18
 
 require (
-	github.com/aws/aws-sdk-go v1.44.211
+	github.com/aws/aws-sdk-go v1.55.7
 	github.com/cenkalti/backoff v2.1.1+incompatible
 	github.com/davecgh/go-spew v1.1.1
 	github.com/fatih/color v1.14.1
