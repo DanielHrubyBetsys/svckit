@@ -118,10 +118,14 @@ func BinDir() string {
 
 func InstanceId() string {
 	env, ok := os.LookupEnv("NOMAD_ALLOC_INDEX")
-	if !ok {
-		return NodeName()
+	if ok {
+		return env
 	}
-	return env
+	env, ok = os.LookupEnv("K8S_POD_UID")
+	if ok {
+		return env
+	}
+	return NodeName()
 }
 
 // Port gets port for label from evn variables
