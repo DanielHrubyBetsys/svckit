@@ -8,14 +8,18 @@ const Ws        = require("./ws.js");
 module.exports = function(config) {
   let urls = {
     port: function() {
-      return (location.port === '' || location.port === '80') ? '' : (':' + location.port);
+      return config.port
+          ? ':' + config.port
+          : window.location.port === '' || window.location.port === '80'
+              ? ''
+              : ':' + window.location.port;
     },
     path: function(relative) {
       if (relative[0] == '/' )  { // if the path has prefix / 
         return relative;          // than it relative from site root
       }
       // othervise we will add relative to the current page location
-      let pn = location.pathname;
+      let pn = window.location.pathname;
       let path = pn.substring(0, pn.lastIndexOf('/') + 1);
       if (path.length === 0)  {
         path = "/";
@@ -23,8 +27,11 @@ module.exports = function(config) {
       return path + relative;
     },
     ws() {
-      let protocol = (location.protocol === 'https:') ? 'wss://' : 'ws://';
-      return urls.addMeta(protocol + location.hostname + urls.port() + urls.path(urls.paths.api));
+      const host = config.host || window.location.hostname;
+      let protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+      return urls.addMeta(
+          protocol + host + urls.port() + urls.path(urls.paths.api)
+      );
     },
     meta: {},
     paths: {
