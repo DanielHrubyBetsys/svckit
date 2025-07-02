@@ -37,6 +37,7 @@ const keysV1 = {
   "n": "no",
   "f": "full",
   "u": "subscriptions",
+  "p": "updateType",
 };
 
 const errorKeys = {

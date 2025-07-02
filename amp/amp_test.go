@@ -150,6 +150,15 @@ func TestMarshalV1(t *testing.T) {
 	assert.Equal(t, string(buf), `{"u":"sportsbook/m","s":123}
 {"First":"jozo","Last":"bozo"}`)
 
+	m.payloads = nil
+	m.UpdateType = Update
+	buf = m.MarshalV1()
+	assert.Equal(t, string(buf), `{"s":"m","n":123,"p":3}
+{"First":"jozo","Last":"bozo"}`)
+
+	buf = m.Marshal()
+	assert.Equal(t, string(buf), `{"u":"sportsbook/m","s":123,"p":3}
+{"First":"jozo","Last":"bozo"}`)
 }
 
 func TestParseV1Subscriptions(t *testing.T) {

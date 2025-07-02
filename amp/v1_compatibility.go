@@ -84,10 +84,11 @@ func (m *Msg) MarshalV1Deflate() ([]byte, bool) {
 
 func (m *Msg) marshalV1header() []byte {
 	v1 := struct {
-		Type   uint8  `json:"t,omitempty"`
-		Stream string `json:"s,omitempty"`
-		No     int64  `json:"n,omitempty"`
-		Full   uint8  `json:"f,omitempty"`
+		Type       uint8  `json:"t,omitempty"`
+		Stream     string `json:"s,omitempty"`
+		No         int64  `json:"n,omitempty"`
+		Full       uint8  `json:"f,omitempty"`
+		UpdateType uint8  `json:"p,omitempty"`
 	}{
 		Type:   m.Type,
 		Stream: strings.TrimPrefix(m.URI, "sportsbook/"),
@@ -95,6 +96,9 @@ func (m *Msg) marshalV1header() []byte {
 	}
 	if m.UpdateType == Full {
 		v1.Full = 1
+	}
+	if m.UpdateType != Diff && m.UpdateType != Full {
+		v1.UpdateType = m.UpdateType
 	}
 	header, _ := json.Marshal(v1)
 	return header
