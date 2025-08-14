@@ -26,12 +26,13 @@ var (
 // RrProducer request response producer.
 // Implements request response communication over nsq.
 type RrProducer struct {
-	s         map[string]chan *Envelope
-	producers map[string]*Producer
-	topic     string
-	sub       *Consumer
-	msgNo     int
-	corr      RrProducerCorrelation
+	s               map[string]chan *Envelope
+	producers       map[string]*Producer
+	topic           string
+	sub             *Consumer
+	consumerOptions []func(*options)
+	msgNo           int
+	corr            RrProducerCorrelation
 	sync.Mutex
 }
 
@@ -71,6 +72,13 @@ func defaultErrorParser(s string) error {
 		return nil
 	}
 	return fmt.Errorf(s)
+}
+
+// RrProducerConsumerOptions sets configuration options for the underlying Consumer of RrProducer.
+func RrProducerConsumerOptions(opts ...func(*options)) func(*RrProducer) {
+	return func(s *RrProducer) {
+		s.consumerOptions = opts
+	}
 }
 
 // SetRrProducerCorrelation sets new correleationID creation function
@@ -331,7 +339,7 @@ func (s *RrProducer) listen() {
 		log.S("id", e.CorrelationId).Info("subscriber not found")
 		return nil
 	}
-	s.sub = Sub(s.topic, handler)
+	s.sub = Sub(s.topic, handler, s.consumerOptions...)
 }
 
 // Close implements gracefully stop.
