@@ -140,10 +140,10 @@ func (s *Broker) find(name string, currentOnNew bool) *spreader {
 	spr := newSpreader(name, topicCount)
 	s.spreaders[name] = spr
 	if currentOnNew && s.current != nil {
-		log.S("topic", name).I("count", topicCount).Info("new top current")
+		log.S("topic", name).I("count", topicCount).Debug("new top current")
 		go s.current(name)
 	} else {
-		log.S("topic", name).I("count", topicCount).Info("new topic")
+		log.S("topic", name).I("count", topicCount).Debug("new topic")
 	}
 	metric.Time("topic.new", int(time.Now().Sub(start).Nanoseconds()))
 	return spr
