@@ -289,6 +289,11 @@ func (m *Msg) Unmarshal(v interface{}) error {
 	return json.Unmarshal(m.body, v)
 }
 
+// Returns Raw message body
+func (m *Msg) Body() []byte {
+	return m.body
+}
+
 // Response creates response message from original request
 func (m *Msg) Response(o interface{}) *Msg {
 	return &Msg{
