@@ -9,7 +9,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/gobwas/httphead"
 	"github.com/gobwas/ws"
 	"github.com/minus5/svckit/log"
 	"github.com/pkg/errors"
@@ -90,31 +89,31 @@ func (l *listener) upgrade(tc net.Conn) (connCap, error) {
 
 	ug := ws.Upgrader{
 		// podrzava li klijent websocket permessage-deflate
-		ExtensionCustom: func(f []byte, os []httphead.Option) ([]httphead.Option, bool) {
-			os = make([]httphead.Option, 0)
-			field := string(f)
-			// skip deflating for kladomat, implementation in Chromium is buggy, constantly reconnects
-			if cc.meta["klad"] != "" {
-				return os, true
-			}
-			if strings.Contains(field, "permessage-deflate") && !cc.deflateSupported {
-				params := map[string]string{
-					"client_no_context_takeover": "",
-					"server_no_context_takeover": "",
-				}
-				os = append(os, httphead.NewOption("permessage-deflate", params))
-				cc.deflateSupported = true
-			}
-			// iPhone (WebKit) salje po starom standardu
-			if strings.Contains(field, "x-webkit-deflate-frame") && !cc.deflateSupported {
-				params := map[string]string{
-					"no_context_takeover": "",
-				}
-				os = append(os, httphead.NewOption("x-webkit-deflate-frame", params))
-				cc.deflateSupported = true
-			}
-			return os, true
-		},
+		//ExtensionCustom: func(f []byte, os []httphead.Option) ([]httphead.Option, bool) {
+		//	os = make([]httphead.Option, 0)
+		//	field := string(f)
+		//	// skip deflating for kladomat, implementation in Chromium is buggy, constantly reconnects
+		//	if cc.meta["klad"] != "" {
+		//		return os, true
+		//	}
+		//	if strings.Contains(field, "permessage-deflate") && !cc.deflateSupported {
+		//		params := map[string]string{
+		//			"client_no_context_takeover": "",
+		//			"server_no_context_takeover": "",
+		//		}
+		//		os = append(os, httphead.NewOption("permessage-deflate", params))
+		//		cc.deflateSupported = true
+		//	}
+		//	// iPhone (WebKit) salje po starom standardu
+		//	if strings.Contains(field, "x-webkit-deflate-frame") && !cc.deflateSupported {
+		//		params := map[string]string{
+		//			"no_context_takeover": "",
+		//		}
+		//		os = append(os, httphead.NewOption("x-webkit-deflate-frame", params))
+		//		cc.deflateSupported = true
+		//	}
+		//	return os, true
+		//},
 		OnRequest: func(uri []byte) error {
 			cc.meta = parseQueryString(uri)
 			for k, v := range cc.meta {
