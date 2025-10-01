@@ -235,12 +235,10 @@ func (p *Prometheus) Timing(name string, f func()) {
 }
 
 // Time submits a histogram type.
-// Duration is in nanoseconds, converted to seconds for Prometheus.
+// Duration is in nanoseconds.
 func (p *Prometheus) Time(name string, duration int) {
 	histogram := p.getOrCreateHistogram(name)
-	// Convert nanoseconds to seconds
-	seconds := float64(duration) / 1e9
-	histogram.Observe(seconds)
+	histogram.Observe(float64(duration))
 }
 
 // WithPrefix returns a clone of the original metric, but with a different prefix

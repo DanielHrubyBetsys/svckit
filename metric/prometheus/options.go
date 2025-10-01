@@ -5,25 +5,37 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/minus5/svckit/dcy"
 	"github.com/minus5/svckit/env"
-	"github.com/minus5/svckit/signal"
 	promclient "github.com/prometheus/client_golang/prometheus"
 )
 
 const (
 	// DefaultHTTPPort is the default port for Prometheus metrics HTTP server
 	DefaultHTTPPort = 2112
-	
+
 	// DefaultMetricsPath is the default path for metrics endpoint
 	DefaultMetricsPath = "/metrics"
 )
 
 var (
-	// DefaultHistogramBuckets are time-based buckets suitable for timing metrics
-	// Covers from 1ms to 10 seconds
-	DefaultHistogramBuckets = []float64{0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 5, 10}
-	
+	// DefaultHistogramBuckets are time-based buckets in nanoseconds
+	// Covers from 1ms (1,000,000 ns) to 10 seconds (10,000,000,000 ns)
+	DefaultHistogramBuckets = []float64{
+		1_000_000,      // 1ms
+		2_500_000,      // 2.5ms
+		5_000_000,      // 5ms
+		10_000_000,     // 10ms
+		25_000_000,     // 25ms
+		50_000_000,     // 50ms
+		100_000_000,    // 100ms
+		250_000_000,    // 250ms
+		500_000_000,    // 500ms
+		1_000_000_000,  // 1s
+		2_500_000_000,  // 2.5s
+		5_000_000_000,  // 5s
+		10_000_000_000, // 10s
+	}
+
 	staticPrometheusEnvVars = []string{
 		"SVCKIT_METRIC_PROMETHEUS_PORT",
 		"PROMETHEUS_PORT",
@@ -50,27 +62,27 @@ func (o *options) Validate() error {
 			o.port = DefaultHTTPPort
 		}
 	}
-	
+
 	// Set default path if not specified
 	if o.path == "" {
 		o.path = DefaultMetricsPath
 	}
-	
+
 	// Set default buckets if not specified
 	if o.buckets == nil {
 		o.buckets = DefaultHistogramBuckets
 	}
-	
+
 	// Create default registry if not provided
 	if o.registry == nil {
 		o.registry = promclient.NewRegistry()
 	}
-	
+
 	// Set default prefix if empty
 	if o.prefix == "" {
 		o.prefix = getDefaultPrefix()
 	}
-	
+
 	return nil
 }
 
@@ -149,18 +161,4 @@ func getDefaultPrefix() string {
 		return fmt.Sprintf("%s.", appName)
 	}
 	return ""
-}
-
-// tryGetPortFromServiceDiscovery attempts to get port from service discovery
-func tryGetPortFromServiceDiscovery() (int, error) {
-	var addr dcy.Address
-	err := signal.WithExponentialBackoff(func() error {
-		var err error
-		addr, err = dcy.Service("prometheus")
-		return err
-	})
-	if err != nil {
-		return 0, err
-	}
-	return addr.Port, nil
 }
